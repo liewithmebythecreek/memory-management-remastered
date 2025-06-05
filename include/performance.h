@@ -31,6 +31,11 @@ public:
     Performance(const std::string &trace_file, std::uint64_t page_size);
 
     /**
+     * Run a single implementation, measure time, collect and print stats.
+     * @param pt_type: which PageTableType to test.
+     */
+    void run_single(PageTableType pt_type);
+    /**
      * Run performance tests for all three implementations.
      * Will create a fresh MemoryManager for each run.
      */
@@ -40,11 +45,7 @@ private:
     std::string trace_filename;
     std::uint64_t page_size;
 
-    /**
-     * Run a single implementation, measure time, collect and print stats.
-     * @param pt_type: which PageTableType to test.
-     */
-    void run_single(PageTableType pt_type);
+    
 
     /**
      * Print statistics for a given run.

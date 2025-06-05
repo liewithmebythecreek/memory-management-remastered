@@ -1,0 +1,10 @@
+
+# For g++, add -std=c++11 or higher
+
+g++ -std=c++11 -pthread your_source_file.cpp -o your_program
+
+
+
+# For clang++, add -std=c++11 or higher
+
+clang++ -std=c++11 -pthread your_source_file.cpp -o your_program
