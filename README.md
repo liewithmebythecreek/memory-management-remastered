@@ -1,166 +1,145 @@
-🧠 Virtual Memory Simulator (C++)
-Simulates how modern operating systems manage virtual memory using paging, TLBs, and different page table strategies — including single-level and multi-level implementations.
+# Virtual Memory Simulator
 
-📁 Directory Structure
-makefile
-Copy
-Edit
+A C++ implementation of virtual memory management simulation featuring both single-level and multi-level page tables with TLB caching.
+
+## Description
+
+This project simulates how modern operating systems manage virtual memory using:
+
+- ✅ Single-Level Page Table
+- ✅ Multi-Level Page Table (2-level)
+- ✅ Translation Lookaside Buffer (TLB) for faster translation
+
+The simulation models the process of mapping logical/virtual addresses to physical addresses using paging and TLB caching, providing insights into memory management mechanisms.
+
+## Project Structure
+
+```
 .
-├── include/               # All header files
-│   ├── config.h
-│   ├── memory_manager.h
-│   ├── task.h
-│   ├── taskmulti.h
-│   ├── tlb.h
-├── src/                   # All source files
-│   ├── memory_manager.cpp
-│   ├── task.cpp
-│   ├── taskmulti.cpp
-│   ├── io.cpp             # Single-level trace reader
-│   ├── iomulti.cpp        # Multi-level trace reader
-│   ├── test.cpp           # Trace generator
-│   ├── tlb.cpp
-├── bin/                   # Compiled executables (output)
-├── makefile               # Build system
+├── include/               # Header files
+│   ├── memory_manager.h   # Memory management interface
+│   ├── tlb.h              # TLB interface
+│   ├── task.h             # Single-level task interface
+│   ├── taskmulti.h        # Multi-level task interface
+│   └── config.h           # Configuration constants
+├── src/                   # Source implementation files
+│   ├── memory_manager.cpp # Memory allocation implementation
+│   ├── tlb.cpp            # TLB implementation
+│   ├── io.cpp             # Single-level I/O operations
+│   ├── task.cpp           # Single-level task implementation
+│   ├── iomulti.cpp        # Multi-level I/O operations
+│   └── taskmulti.cpp      # Multi-level task implementation
+├── test.cpp               # Trace file generator
+├── Makefile               # Build automation
+├── bin/                   # Compiled executables
+│   ├── single_pagetable   # Single-level executable
+│   ├── multilevel_pagetable # Multi-level executable
+│   └── test               # Trace generator executable
+├── obj/                   # Object files
 └── README.md              # This file
-💡 Overview
-This simulator provides insight into:
+```
 
-✅ Virtual to physical address translation
+## Requirements
 
-✅ TLB caching with LRU replacement
+- g++ compiler (C++11 support)
+- Make (for building)
+- Windows or Linux
 
-✅ Single-Level Page Tables
+## Build Instructions
 
-✅ Two-Level Page Tables (hierarchical)
+1. Clone the repository:
+   ```bash
+   git clone <repository-url>
+   cd memory-manager
+   ```
 
-✅ FIFO page replacement (via global memory manager)
+2. Build the project:
 
-✅ Per-task memory stats and TLB behavior
+   ```bash
+   # Build multilevel page table (default)
+   make
 
-🧱 Components
-🔹 MemoryManager (Singleton)
-Manages a pool of physical pages
+   # Build single-level page table
+   make single
 
-Supports FIFO replacement
+   # Generate trace file
+   make trace
 
-Tracks free and allocated pages
+   # Clean build files
+   make clean
+   ```
 
-🔹 TLB
-Simulates a Translation Lookaside Buffer
+## Running the Simulator
 
-LRU cache with 64 entries
+1. Generate a trace file (optional, uses defaults):
+   ```bash
+   make trace
+   ```
 
-Lookup, insert, invalidate, and usage statistics
+2. Or generate a custom trace file:
+   ```bash
+   bin/test <total_lines> <num_tasks>
+   ```
 
-🔹 task
-Per-task memory simulation with single-level page table
+3. Run the simulators:
+   ```bash
+   # Run multilevel page table simulator
+   bin/multilevel_pagetable trace.txt
 
-Tracks hits/misses and uses TLB
+   # Run single-level page table simulator
+   bin/single_pagetable trace.txt
+   ```
 
-🔹 taskmulti
-Per-task memory simulation with two-level page table
+## Features
 
-Maps logical address → directory index → table index → physical page
+- 🧠 TLB cache simulation with hit/miss tracking
+- 🧮 Physical memory page allocation and deallocation
+- 📊 Per-task statistics (page hits/misses, TLB hits/misses)
+- 🧵 Multi-threaded trace file generation
+- 🛠️ Cross-platform build system (Windows/Linux)
 
-Uses TLB and memory manager
+## Trace File Format
 
-🧪 Trace File Format
-Each line in the trace:
+The trace file contains memory access patterns in the format:
+```
+T<task_id>: 0x<address>: <size>KB
+```
 
-php-template
-Copy
-Edit
-T<task_id>: 0x<virtual_address>: <size>KB
 Example:
-
-makefile
-Copy
-Edit
+```
 T1: 0x00423000: 8KB
 T2: 0x00A31000: 4KB
-⚙️ Build Instructions
-🔧 Prerequisites
-g++ with C++11 support
+```
 
-make
+## Implementation Details
 
-Windows (MSYS) or Linux
+### Multi-level Page Table
 
-🏗️ Build Commands
-From the root of the project:
+- Two-level page table structure
+- Page directory (10 bits) + Page table (10 bits) + Offset (12 bits)
+- 4KB page size
+- TLB caching for faster translation
 
-bash
-Copy
-Edit
-# Build multi-level simulator (default)
-make
+### Single-level Page Table
 
-# Build single-level simulator
-make single
+- Direct mapping from virtual to physical pages
+- 4KB page size
+- TLB caching for faster translation
 
-# Generate trace file (trace.txt)
-make trace
+## Known Limitations
 
-# Clean build artifacts
-make clean
-Executables are generated in the bin/ folder:
+- This is a **simulation**, not actual OS memory management
+- Physical memory is simulated in software
+- TLB is simplified to basic key-value storage
+- Limited to 32-bit addressing
+- **Platform Dependency**: The trace generator uses platform-specific threading. On Linux, replace Windows threading with pthreads.
 
-bin/multilevel_pagetable
+## Author
 
-bin/single_pagetable
+- **Nitin Kumar** (Roll No: 2023AIB1012)
 
-bin/test
+_AI Lab 3 Coursework_
 
-▶️ Running the Simulation
-🔹 Step 1: Generate Trace File
-bash
-Copy
-Edit
-make trace               # Default: 1M lines, 10 tasks
-./bin/test 10000 5       # Custom: 10K lines, 5 tasks
-🔹 Step 2: Run Simulators
-bash
-Copy
-Edit
-# Multi-level page table
-./bin/multilevel_pagetable trace.txt
+## License
 
-# Single-level page table
-./bin/single_pagetable trace.txt
-🔍 Internals
-🧠 Virtual Address Breakdown (2-Level Page Table)
-css
-Copy
-Edit
-[ 10 bits | 10 bits | 12 bits ]
-   └────┬────┘  └────┬────┘
- Page Dir     Page Table   Offset
-📊 Sample Output
-yaml
-Copy
-Edit
-TLB hit for task T1: Logical page 12 -> Physical page 100
-Page miss for task T2: Directory 1, Table 45
-Allocated physical page number 34
-Task T1 - Page Table Hits: 20, Misses: 2
-=== TLB Statistics ===
-Hits: 15
-Misses: 7
-Hit Rate: 68.18%
-🚧 Limitations
-Simulates memory in software — not real OS paging
-
-32-bit address space only
-
-Simplified TLB with no context switching
-
-Windows-specific test.cpp threading (WinAPI) — porting to Linux requires:
-
-pthread.h
-
-Replace CreateThread, WaitForMultipleObjects, CRITICAL_SECTION
-
-👨‍💻 Author
-Nitin Kumar
-Roll No: 2023AIB1012
+This project is part of the AI Lab 3 coursework.
