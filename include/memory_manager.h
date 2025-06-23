@@ -1,65 +1,29 @@
 #ifndef MEMORY_MANAGER_H
 #define MEMORY_MANAGER_H
 
+#include <unordered_set>
 #include <cstdint>
-#include <vector>
-#include <mutex>          // use std::mutex for thread safety
-
-#include "config.h"
-
-/**
- * MemoryManager:
- *   - Keeps track of free/allocated physical pages.
- *   - On request, returns a free physical frame number (or -1 if none available).
- *   - Allows freeing a previously allocated frame.
- *   - Reports total and free physical memory.
- *   - Thread-safe for concurrent allocations/frees.
- */
+#include <iostream>
+#include <queue>
 class MemoryManager {
-public:
-    /**
-     * Constructor: initialize with a given page size (in bytes). Computes total frames.
-     */
-    MemoryManager(std::uint64_t page_size_bytes);
-    ~MemoryManager();                    // destroy the pthread mutex
-    /**
-     * Allocate one physical frame. Returns the allocated frame number (0-based),
-     * or -1 if no free frames are available.
-     */
-    int64_t allocate_frame();
-
-    /**
-     * Free a previously allocated frame (frame_number). Marks it as free.
-     * Caller must ensure frame_number is valid.
-     */
-    void free_frame(std::uint64_t frame_number);
-
-    /**
-     * Get total number of physical frames managed.
-     */
-    std::uint64_t total_frames() const;
-
-    /**
-     * Get number of free frames currently available.
-     */
-    std::uint64_t free_frames() const;
-
-    /**
-     * Get total physical memory size (in bytes).
-     */
-    std::uint64_t total_memory_size() const;
-
-    /**
-     * Get free physical memory size (in bytes).
-     */
-    std::uint64_t free_memory_size() const;
-
 private:
-    std::uint64_t page_size;        // page size in bytes
-    std::uint64_t num_frames;       // total number of frames
-    std::vector<bool> frame_bitmap; // true == free, false == allocated
+    std::unordered_set<uint32_t> free_pages;
+    std::unordered_set<uint32_t> allocated_pages;
+    std::queue<uint32_t> page_allocation_order;
+    uint32_t total_pages;
 
-    mutable std::mutex mtx;         // C++ standard mutex
+    MemoryManager(); // constructor
+
+public:
+    static MemoryManager& getInstance(); // singleton
+
+    MemoryManager(const MemoryManager&) = delete;
+    void operator=(const MemoryManager&) = delete;
+
+    uint32_t allocatePage();
+    void deallocatePage(uint32_t page_number);
+    uint32_t getFreePageCount() const;
+    uint32_t getAllocatedPageCount() const;
 };
 
-#endif // MEMORY_MANAGER_H
+#endif
